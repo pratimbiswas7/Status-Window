@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Solo Leveling Quest System</title>
+<style>
+:root {
+  --bg: #040614;
+  --panel: rgba(5, 10, 30, 0.9);
+  --border: #1c3b6c;
+  --accent: #4eaaff;
+  --text: #e6f3ff;
+  --muted: #93a8c6;
+  --danger: #ff5b6b;
+  --glass: rgba(255, 255, 255, 0.03);
+  --shadow: 0 0 20px rgba(40,120,255,0.25);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at 50% 20%, #07142f, #020611 70%);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 30px;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
+
+.panel {
+  width: 380px;
+  max-width: 95vw;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  position: relative;
+  text-align: center;
+}
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(80,160,255,0.1);
+  border-radius: 10px;
+  pointer-events: none;
+}
+header {
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+header h1 {
+  font-size: 18px;
+  letter-spacing: 2px;
+  margin: 0;
+  color: var(--accent);
+}
+header p {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 2px 0 0 0;
+}
+
+.goal-title {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.task-box {
+  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+.task-box span {
+  flex: 1;
+}
+.task-box button {
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.task-box button:hover {
+  background: var(--accent);
+  color: #000;
+}
+.task-list { max-height: 200px; overflow-y: auto; }
+
+.input-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+input[type=text] {
+  flex: 1;
+  background: rgba(40,90,200,0.15);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 8px;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  text-align: center;
+}
+input[type=text]:focus {
+  box-shadow: 0 0 6px var(--accent);
+}
+.btn {
+  background: linear-gradient(90deg, var(--accent), #83d4ff);
+  border: none;
+  color: #04111f;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 8px 12px;
+  transition: 0.2s;
+}
+.btn:hover { filter: brightness(1.1); }
+
+.small-text {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 6px;
+}
+
+.timer {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+  margin-top: 6px;
+  letter-spacing: 2px;
+}
+
+/* Skills window same panel style */
+#skillsPanel {
+  display: none;
+}
+.skills-container {
+  max-height: 230px;
+  overflow-y: auto;
+}
+.skill {
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+}
+.skill-title {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+.skill input[type=range] {
+  width: 100%;
+  accent-color: #007bff; /* Blue slider */
+}
+.skill-actions {
+  text-align: center;
+  margin-top: 4px;
+  font-size: 12px;
+}
+</style>
+</head>
+<body>
+<div class="panel" id="questPanel">
+  <header>
+    <h1>QUEST INFO</h1>
+    <p>[Daily Quest: Player Training has arrived]</p>
+  </header>
+  <div class="goal-title">GOAL</div>
+
+  <div class="task-list" id="taskList"></div>
+
+  <div class="input-row">
+    <input id="taskInput" placeholder="Enter task">
+    <button class="btn" id="addTaskBtn">ADD</button>
+  </div>
+
+  <div class="small-text" id="quotaInfo"></div>
+  <div class="timer" id="timer">--:--:--</div>
+
+  <div class="input-row" style="margin-top:14px">
+    <button class="btn" id="openSkills">SKILLS</button>
+    <button class="btn" id="completeDay">COMPLETE QUEST</button>
+  </div>
+
+  <div class="small-text">WARNING: Failure to complete daily quest results in penalty.</div>
+</div>
+
+<!-- Skills panel -->
+<div class="panel" id="skillsPanel">
+  <header>
+    <h1>SKILL INFO</h1>
+    <p>[Player Ability Growth]</p>
+  </header>
+  <div class="goal-title">SKILLS</div>
+  <div class="skills-container" id="skillsList"></div>
+
+  <div class="input-row">
+    <input id="skillInput" placeholder="Learn new skill">
+    <button class="btn" id="addSkillBtn">LEARN</button>
+  </div>
+
+  <div class="input-row" style="margin-top:12px">
+    <button class="btn" id="closeSkills">BACK</button>
+  </div>
+</div>
+
+<script>
+const taskList = document.getElementById('taskList');
+const taskInput = document.getElementById('taskInput');
+const quotaInfo = document.getElementById('quotaInfo');
+const timerEl = document.getElementById('timer');
+
+const STORAGE_KEYS = {
+  TASKS: 'sl_tasks_v2',
+  DAILY: 'sl_daily_v2',
+  SKILLS: 'sl_skills_v2'
+};
+let tasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS) || '[]');
+let daily = JSON.parse(localStorage.getItem(STORAGE_KEYS.DAILY) || 'null');
+let skills = JSON.parse(localStorage.getItem(STORAGE_KEYS.SKILLS) || '[]');
+
+function today() { return new Date().toISOString().slice(0,10); }
+function ensureDaily() {
+  if (!daily || daily.date !== today()) {
+    const prevIncomplete = tasks.filter(t => !t.completed).length;
+    const quota = 3 + (prevIncomplete > 0 ? prevIncomplete : 0);
+    daily = { date: today(), quota };
+    localStorage.setItem(STORAGE_KEYS.DAILY, JSON.stringify(daily));
+  }
+}
+function saveAll() {
+  localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
+  localStorage.setItem(STORAGE_KEYS.SKILLS, JSON.stringify(skills));
+  localStorage.setItem(STORAGE_KEYS.DAILY, JSON.stringify(daily));
+}
+
+function renderTasks() {
+  ensureDaily();
+  taskList.innerHTML = '';
+  const completedCount = tasks.filter(t => t.completed).length;
+  const totalCount = daily.quota;
+  tasks.filter(t => !t.completed).forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'task-box';
+    div.innerHTML = `<span>${t.text}</span>
+                     <button data-id="${t.id}">COMPLETE</button>`;
+    div.querySelector('button').addEventListener('click', ()=>{
+      t.completed = true;
+      saveAll();
+      renderTasks();
+    });
+    taskList.appendChild(div);
+  });
+  quotaInfo.textContent = `Progress: ${completedCount}/${totalCount}`;
+}
+
+document.getElementById('addTaskBtn').addEventListener('click', ()=>{
+  if (!taskInput.value.trim()) return;
+  const count = tasks.filter(t => !t.completed).length;
+  if (count >= daily.quota) { alert('Task limit reached'); return; }
+  tasks.push({ id: Date.now(), text: taskInput.value.trim(), completed: false });
+  taskInput.value = '';
+  saveAll(); renderTasks();
+});
+
+function timeToMidnight() {
+  const now = new Date();
+  const tomorrow = new Date();
+  tomorrow.setHours(24,0,0,0);
+  const diff = tomorrow - now;
+  const h = String(Math.floor(diff / 3600000)).padStart(2,'0');
+  const m = String(Math.floor((diff % 3600000)/60000)).padStart(2,'0');
+  const s = String(Math.floor((diff % 60000)/1000)).padStart(2,'0');
+  timerEl.textContent = `${h}:${m}:${s}`;
+}
+setInterval(()=> {
+  timeToMidnight();
+  if (today() !== daily.date) { ensureDaily(); renderTasks(); }
+}, 1000);
+
+// Skills system
+const skillsPanel = document.getElementById('skillsPanel');
+const questPanel = document.getElementById('questPanel');
+const skillInput = document.getElementById('skillInput');
+const skillsList = document.getElementById('skillsList');
+
+function renderSkills() {
+  skillsList.innerHTML = '';
+  skills.forEach(s=>{
+    const div = document.createElement('div');
+    div.className = 'skill';
+    div.innerHTML = `
+      <div class="skill-title">${s.name}</div>
+      <input type="range" min="0" max="100" value="${s.progress}" data-id="${s.id}">
+      <div class="skill-actions"><span>${s.progress}%</span></div>`;
+    skillsList.appendChild(div);
+  });
+  skillsList.querySelectorAll('input[type=range]').forEach(r=>{
+    r.addEventListener('input', e=>{
+      const id = e.target.dataset.id;
+      const s = skills.find(x=>x.id==id);
+      s.progress = e.target.value;
+      saveAll();
+      renderSkills();
+    });
+  });
+}
+
+document.getElementById('addSkillBtn').addEventListener('click', ()=>{
+  if(!skillInput.value.trim()) return;
+  skills.push({ id: Date.now(), name: skillInput.value.trim(), progress: 0 });
+  skillInput.value='';
+  saveAll(); renderSkills();
+});
+
+document.getElementById('openSkills').addEventListener('click', ()=>{
+  questPanel.style.display='none';
+  skillsPanel.style.display='block';
+  renderSkills();
+});
+document.getElementById('closeSkills').addEventListener('click', ()=>{
+  skillsPanel.style.display='none';
+  questPanel.style.display='block';
+  renderTasks();
+});
+
+document.getElementById('completeDay').addEventListener('click', ()=>{
+  alert('Quest completed successfully!');
+  tasks = [];
+  saveAll(); renderTasks();
+});
+
+ensureDaily();
+renderTasks();
+timeToMidnight();
+</script>
+</body>
+</html>
